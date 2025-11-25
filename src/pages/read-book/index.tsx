@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { Worker, Viewer, Tooltip, Button, Position, PrimaryButton, Icon, MinimalButton, SpecialZoomLevel, ViewMode, ScrollMode } from '@react-pdf-viewer/core';
 import { HighlightArea, highlightPlugin, MessageIcon, RenderHighlightContentProps, RenderHighlightsProps, RenderHighlightTargetProps } from '@react-pdf-viewer/highlight';
-import { searchPlugin, SearchPluginProps, RenderSearchProps, NextIcon, PreviousIcon, SearchIcon, RenderShowSearchPopoverProps } from '@react-pdf-viewer/search';
+import { searchPlugin, SearchPluginProps, RenderSearchProps, NextIcon, PreviousIcon, SearchIcon, RenderShowSearchPopoverProps, SearchPlugin } from '@react-pdf-viewer/search';
 import { pageNavigationPlugin, RenderCurrentPageLabelProps, RenderGoToPageProps } from '@react-pdf-viewer/page-navigation';
-
+import { Menu } from 'lucide-react';
+// import { Button } from '@/components/ui/button'; // nếu bạn đã có shadcn components
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger
+} from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area';
 // Import styles
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
@@ -12,8 +21,12 @@ import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
 import { BookmarkPlusIcon, ChevronLeftIcon, CircleChevronLeftIcon, CircleChevronRightIcon, SquareMenuIcon } from 'lucide-react';
 import '@/pages/read-book/index.scss';
 import { useStore } from '@/hooks/useStore';
-import MenuReadBook from './components/menuReadBook';
-
+import ChapterMenu from './components/chapterMenu';
+import { SearchSidebarInner } from './SearchSidebarInner';
+interface SearchSidebarProps {
+    isDocumentLoaded: boolean,
+    searchPluginInstance: SearchPlugin
+}
 interface Note {
     id: number,
     content: string,
@@ -162,61 +175,43 @@ export default function ReadBook() {
     const pageNavigationPluginInstance = pageNavigationPlugin();
     const { GoToFirstPage, GoToLastPage, GoToNextPage, GoToPreviousPage, CurrentPageLabel } = pageNavigationPluginInstance;
 
-    // Show menu
-    const showMenu = () => {
-        showModal({
-            size: 'sm',
-            title: 'Menu',
-            contentClassName: 'px-0 xxxxxxxxxxxxxxxxxxxxxxxxxx',
-            content: (
-                <MenuReadBook />
-            ),
-            footerClassName: 'hidden'
-        });
-    };
-
     return (
         <>
             <div className='fixed inset-0 bg-[#000] z-50'>
                 <div className='h-[56px] bg-[#29292b] flex justify-between'>
                     <div className='h-[56px] flex items-center'>
                         <ChevronLeftIcon className='ml-4 h-[24px] w-[24px] text-[#fff] cursor-pointer' />
+                        {/* Search box */}
+                        <div className='w-[250px]'>
+                            <Search>
+                                {(renderSearchProps: RenderSearchProps) => (
+                                    <SearchSidebarInner isDocumentLoaded={true} renderSearchProps={renderSearchProps} />
+                                )}
+                            </Search>
+                        </div>
+
                     </div>
                     <div>
                         <div className='text-[20px] text-[#fff] text-center'>Nghe thấy tiếng lòng anh</div>
                         <div className='text-[14px] text-[#d8d8d8] text-center'>Chương 3</div>
+
                     </div>
                     <div className='h-[56px] flex items-center'>
-                        <SquareMenuIcon
-                            className='mx-3 h-[30px] w-[30px] text-[#fff] cursor-pointer'
-                            onClick={() => {
-                                showMenu();
-                            }}
-                        />
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <SquareMenuIcon className='mx-3 h-[30px] w-[30px] text-[#fff] cursor-pointer' />
+                            </SheetTrigger>
+
+                            <SheetContent side='right' className='w-80 bg-[#29292b] text-white p-0 h-[calc(100vh-0px)] border-0'>
+                                <ScrollArea className='b-0'>
+                                    <ChapterMenu />
+                                </ScrollArea>
+                            </SheetContent>
+                        </Sheet>
                         <BookmarkPlusIcon className='mx-3 h-[30px] w-[30px] text-[#fff]' />
                     </div>
                 </div>
                 <div className='h-[calc(100vh-120px)]'>
-                    {/* Search box */}
-                    {/* <div style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-                        <ShowSearchPopover>
-                            {(props: RenderShowSearchPopoverProps) => (
-                                <button
-                                    style={{
-                                        backgroundColor: '#357edd',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        color: '#ffffff',
-                                        cursor: 'pointer',
-                                        padding: '8px'
-                                    }}
-                                    onClick={props.onClick}
-                                >
-                                    Search
-                                </button>
-                            )}
-                        </ShowSearchPopover>
-                    </div> */}
                     {/* <div className='border border-black/30 flex h-full overflow-hidden'> */}
                     {/* Note box */}
                     {/* <div

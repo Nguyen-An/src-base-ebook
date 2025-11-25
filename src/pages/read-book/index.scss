@@ -28,3 +28,18 @@
     justify-content: center;
     align-items: center;
 }
+
+#rpv-core__popover-body-inner-search>.rpv-search__popover>.rpv-search__popover-label {
+    display: none !important;
+}
+
+.search-input-wrapper input {
+    padding: 8px 10px;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    color: #111827;
+}
