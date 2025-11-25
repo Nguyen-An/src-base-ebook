@@ -1,0 +1,30 @@
+/* Ẩn thanh cuộn trên mọi trình duyệt */
+.rpv-core__inner-pages {
+    overflow: hidden !important;
+}
+
+.rpv-core__inner-pages::-webkit-scrollbar {
+    display: none !important;
+}
+
+.rpv-core__inner-pages {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Đảm bảo chỉ hiện đúng 1 trang, không có bóng/khe hở trang kế bên */
+.rpv-core__page {
+    margin: 0 auto !important;
+    box-shadow: none !important;
+}
+
+.rpv-core__inner-page {
+    background: transparent !important;
+}
+
+/* Căn giữa trang nếu chiều cao màn hình lớn hơn trang PDF */
+.rpv-core__canvas-layer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

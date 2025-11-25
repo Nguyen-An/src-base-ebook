@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  ei-fe-cms:
+    container_name: ei-fe-cms
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # command: tail -f /dev/null

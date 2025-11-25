@@ -1,0 +1,36 @@
+stages:
+  - build
+  - clean
+
+variables:
+  CONTAINER_NAME: ${CONTAINER_NAME}
+  CONTAINER_BUILD_PATH: ${CONTAINER_BUILD_PATH}
+  HOST_BUILD_PATH: ${HOST_BUILD_PATH}
+
+build:
+  stage: build
+  tags:
+    - ei-fe-cms-runner
+  script:
+    - echo "=== Create .env file ==="
+    - cat $ENV_FILE > .env
+    - echo "=== Build React with Docker Compose ==="
+    - docker compose up -d --build ${CONTAINER_NAME}
+    - echo "=== Create host directory if it does not exist ==="
+    - mkdir -p ${HOST_BUILD_PATH}
+    - echo "=== Remove old build files from host ==="
+    - rm -rf "$HOST_BUILD_PATH/*"
+    - echo "=== Copy build directory from container to host ==="
+    - docker cp $CONTAINER_NAME:$CONTAINER_BUILD_PATH/. $HOST_BUILD_PATH
+  only:
+    - develop
+
+clean:
+  stage: clean
+  tags:
+    - ei-fe-cms-runner
+  script:
+    - echo "=== Clean up unused Docker containers and images ==="
+    - docker system prune -af
+  only:
+    - develop

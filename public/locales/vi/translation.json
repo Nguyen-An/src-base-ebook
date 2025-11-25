@@ -1,0 +1,42 @@
+{
+    "document": {
+        "meta_data": {
+            "title": "VI - React TSX",
+            "description": "VI - React TSX"
+        }
+    },
+    "general": {
+        "brand_name": "VI - React TSX"
+    },
+    "table": {
+        "paging_info": "Hiển thị {{from}} ~ {{to}} trên {{total}} bản ghi"
+    },
+    "words_title": {
+        "home": "Trang chủ",
+        "dashboard": "Thống kê",
+        "layout": "Bố cục",
+        "english": "Tiếng anh",
+        "vietnamese": "Tiếng việt",
+        "profile": "Thông tin cá nhân",
+        "account": "Tài khoản",
+        "email": "Email",
+        "sign_in": "Đăng nhập",
+        "sign_out": "Đăng xuất",
+        "password": "Mật khẩu",
+        "display": "Hiển thị",
+        "cancel": "Hủy",
+        "save": "Lưu"
+    },
+    "footer": {
+        "description": "Được xây dựng bằng công nghệ"
+    },
+    "form_error_validate": {
+        "required": "Trường bắt buộc",
+        "email": "Địa chỉ email không hợp lệ"
+    },
+    "messages": {
+        "api_response_no_network_or_server_error": "Đã xảy ra sự cố khi kết nối với máy chủ",
+        "api_response_no_message": "Không có phản hồi cho thông báo lỗi",
+        "sign_in_success": "Đăng nhập thành công"
+    }
+}

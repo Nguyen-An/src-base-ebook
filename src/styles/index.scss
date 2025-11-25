@@ -1,0 +1,49 @@
+@import './font.scss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "./variables";
+
+@layer base {
+  :root {
+    @each $property, $color in $base-colors-normal {
+      #{$property}: $color;
+    }
+  }
+
+  .dark {
+    @each $property, $color in $base-colors-dark {
+      #{$property}: $color;
+    }
+  }
+
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  // #region Scroll
+  /* width */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    @apply bg-inherit rounded-lg;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary rounded-lg;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+  }
+  // #endregion
+}

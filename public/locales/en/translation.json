@@ -1,0 +1,47 @@
+{
+    "document": {
+        "meta_data": {
+            "title": "EN - React TSX",
+            "description": "EN - React TSX"
+        }
+    },
+    "general": {
+        "brand_name": "EN - React TSX"
+    },
+    "table": {
+        "paging_info": "Display {{from}} ~ {{to}} out of {{total}} records",
+        "sort": {
+            "ascending": "Sort ascending",
+            "descending": "Sort descending",
+            "clear": "Clear sort"
+        }
+    },
+    "words_title": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "layout": "Layout",
+        "english": "English",
+        "vietnamese": "Vietnamese",
+        "profile": "Profile",
+        "account": "Account",
+        "sign_in": "Sign in",
+        "sign_out": "Sign out",
+        "email": "Email address",
+        "password": "Password",
+        "display": "Display",
+        "cancel": "Cancel",
+        "save": "Save"
+    },
+    "footer": {
+        "description": "Built with technology"
+    },
+    "form_error_validate": {
+        "required": "Field required",
+        "email": "Email address invalid"
+    },
+    "messages": {
+        "api_response_no_network_or_server_error": "There was a problem connecting to the server",
+        "api_response_no_message": "No error message response",
+        "sign_in_success": "Signed in successfully"
+    }
+}
