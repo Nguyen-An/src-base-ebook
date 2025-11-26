@@ -1,6 +1,7 @@
 import ApiStore from './ApiStore';
 import AuthStore from './AuthStore';
 import ModalStore from './ModalStore';
+import ReadBookStore from './ReadBookStore';
 import UIStore from './UIStore';
 import UserStore from './UserStore';
 
@@ -10,6 +11,7 @@ export default class RootStore {
     uiStore: UIStore;
     authStore: AuthStore;
     userStore: UserStore;
+    readBookStore: ReadBookStore;
 
     constructor() {
         this.modalStore = new ModalStore();
@@ -17,5 +19,6 @@ export default class RootStore {
         this.uiStore = new UIStore(this);
         this.authStore = new AuthStore(this);
         this.userStore = new UserStore(this);
+        this.readBookStore = new ReadBookStore(this);
     }
 }
