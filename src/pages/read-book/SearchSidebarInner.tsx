@@ -19,7 +19,7 @@ export const SearchSidebarInner: React.FC<SearchSidebarInnerProps> = ({ isDocume
     const [matches, setMatches] = React.useState<Match[]>([]);
     const [showDrop, setShowDrop] = React.useState<Boolean>(false);
 
-    const { currentMatch, keyword, setKeyword, jumpToMatch, jumpToNextMatch, jumpToPreviousMatch, search } =
+    const { currentMatch, keyword, setKeyword, jumpToNextMatch, jumpToPreviousMatch, search } =
         renderSearchProps;
 
     const performSearch = () => {
@@ -105,90 +105,7 @@ export const SearchSidebarInner: React.FC<SearchSidebarInnerProps> = ({ isDocume
                         </div>
                     )
                 }
-
             </div>
         </>
     );
 };
-
-// <div
-//     style={{
-//         display: 'flex',
-//         flexDirection: 'column',
-//         height: '100px',
-//         overflow: 'hidden',
-//         width: '100%'
-//     }}
-// >
-//     <div style={{ padding: '.5rem' }}>
-//         <div className='relative'>
-//             <div className='search-input-wrapper'>
-//                 <TextBox
-//                     placeholder='Enter to search'
-//                     value={keyword}
-//                     onChange={setKeyword}
-//                     onKeyDown={handleSearchKeyDown}
-//                 />
-//             </div>
-//             {/* {searchStatus === SearchStatus.Searching && (
-//                 <div
-//                     style={{
-//                         alignItems: 'center',
-//                         display: 'flex',
-//                         bottom: 0,
-//                         position: 'absolute',
-//                         right: '.5rem',
-//                         top: 0
-//                     }}
-//                 >
-//                     <Spinner size='1.5rem' />
-//                 </div>
-//             )} */}
-//             {/* <div>{`${currentMatch}/${matches.length}`}</div> */}
-//         </div>
-//     </div>
-//     {/* {searchStatus === SearchStatus.FoundResults && (
-//         123
-//     )}
-//     <div>
-
-//     </div> */}
-//     {/* {searchStatus === SearchStatus.FoundResults && (
-//         <>
-//             {matches.length === 0 && 'Not found'}
-//             {matches.length > 0 && (
-//                 <>
-//                     <div
-//                         style={{
-//                             alignItems: 'center',
-//                             display: 'flex',
-//                             padding: '.5rem'
-//                         }}
-//                     >
-//                         <div
-//                             style={{
-//                                 color: 'rgba(0, 0, 0, .5)',
-//                                 fontSize: '.8rem',
-//                                 marginRight: '.5rem'
-//                             }}
-//                         >
-//                             Found
-//                             {' '}
-//                             {matches.length}
-//                             {' '}
-//                             results
-//                         </div>
-//                         <div style={{ marginLeft: 'auto', marginRight: '.5rem' }}>
-//                             <MinimalButton onClick={jumpToPreviousMatch}>
-//                                 <PreviousIcon />
-//                             </MinimalButton>
-//                         </div>
-//                         <MinimalButton onClick={jumpToNextMatch}>
-//                             <NextIcon />
-//                         </MinimalButton>
-//                     </div>
-//                 </>
-//             )}
-//         </>
-//     )} */}
-// </div>

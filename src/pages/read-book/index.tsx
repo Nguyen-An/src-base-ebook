@@ -5,23 +5,26 @@ import { searchPlugin, RenderSearchProps, SearchPlugin } from '@react-pdf-viewer
 import { pageNavigationPlugin, RenderCurrentPageLabelProps, RenderGoToPageProps } from '@react-pdf-viewer/page-navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RenderCurrentScaleProps, RenderZoomInProps, RenderZoomOutProps, RenderZoomProps, zoomPlugin } from '@react-pdf-viewer/zoom';
 
 // Import styles
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import '@react-pdf-viewer/search/lib/styles/index.css';
 import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
-import { BookmarkPlusIcon, ChevronLeftIcon, CircleChevronLeftIcon, CircleChevronRightIcon, SquareMenuIcon } from 'lucide-react';
+import { BookmarkMinusIcon, BookmarkPlusIcon, ChevronLeftIcon, CircleChevronLeftIcon, CircleChevronRightIcon, SquareMenuIcon } from 'lucide-react';
 import '@/pages/read-book/index.scss';
 import { useStore } from '@/hooks/useStore';
 import ChapterMenu from './components/chapterMenu';
 import { SearchSidebarInner } from './SearchSidebarInner';
 import { NoteItem } from '@/stores/ReadBookStore';
 import { observer } from 'mobx-react-lite';
+import { Slider } from '@/components/common/slider';
+import { toJS } from 'mobx';
 
 export default observer(function ReadBook() {
     const [message, setMessage] = React.useState('');
-    const { readBookStore: { notes, setNotes, addBookmark } } = useStore();
+    const { readBookStore: { notes, setNotes, bookmarks, addBookmark, removeBookmark } } = useStore();
 
     let noteId = notes.length;
     const noteEles = React.useRef<Map<number, HTMLElement>>(new Map());
@@ -93,6 +96,9 @@ export default observer(function ReadBook() {
         if (el) {
             el.scrollIntoView();
         }
+        // if (note.highlightAreas.length > 0) {
+        //     jumpToHighlightArea(note.highlightAreas[0]); // 100% chính xác, tự động nhảy trang + scroll
+        // }
     };
 
     const renderHighlights = (props: RenderHighlightsProps) => (
@@ -107,7 +113,7 @@ export default observer(function ReadBook() {
                                 style={Object.assign(
                                     {},
                                     {
-                                        background: 'yellow',
+                                        background: 'red',
                                         opacity: 0.4
                                     },
                                     props.getCssProperties(area, props.rotation)
@@ -142,8 +148,44 @@ export default observer(function ReadBook() {
     const pageNavigationPluginInstance = pageNavigationPlugin();
     const { GoToNextPage, GoToPreviousPage, CurrentPageLabel } = pageNavigationPluginInstance;
 
+    // safe getter for plugin jumpToPage method (different plugin versions expose different names)
+    const pickPluginMethod = (instance: any, names: string[]) => {
+        for (const n of names) {
+            if (instance && typeof instance[n] === 'function') {
+                return instance[n].bind(instance);
+            }
+        }
+        return undefined;
+    };
+
+    const jumpToPageMethod = pickPluginMethod(pageNavigationPluginInstance, [
+        'jumpToPage',
+        'goToPage',
+        'jumpTo',
+        'goTo'
+    ]);
+
+    const handleSliderChange = (value: number | number[]) => {
+        const pageOneBased = Array.isArray(value) ? Number(value[0]) : Number(value);
+        if (Number.isNaN(pageOneBased)) return;
+        const pageIndex = Math.max(0, pageOneBased - 1);
+        // update ref (no re-render)
+        currentPageRef.current = pageIndex;
+        setCurrentPage(pageIndex);
+        // try plugin navigation
+        if (typeof jumpToPageMethod === 'function') {
+            try {
+                jumpToPageMethod(pageIndex);
+                return;
+            } catch (err) {
+            }
+        }
+    };
+
     // bookmark handling
+    const [currentPage, setCurrentPage] = React.useState<number>(0);
     const currentPageRef = React.useRef<number>(0);
+
     // helper: try to get text snippet from rendered page DOM; fallback to "Page X"
     const getPageTitleFromDOM = (pageIndex: number) => {
         try {
@@ -170,6 +212,17 @@ export default observer(function ReadBook() {
         });
     };
 
+    const handleRemoveBookmark = (pageIndex: number) => {
+        const bookmark = bookmarks.find(b => b.pageIndex === pageIndex);
+        if (bookmark) {
+            removeBookmark(bookmark.id);
+        }
+    };
+
+    // zoom Plugin
+    const zoomPluginInstance = zoomPlugin();
+    const { CurrentScale, ZoomIn, ZoomOut } = zoomPluginInstance;
+
     return (
         <>
             <div className='fixed inset-0 bg-[#000] z-50'>
@@ -184,9 +237,10 @@ export default observer(function ReadBook() {
                                 )}
                             </Search>
                         </div>
-
                     </div>
-                    <div className='text-[22px] text-[#fff] text-center leading-[56px]'>Nghe thấy tiếng lòng anh</div>
+                    <div className='text-[22px] text-[#fff] text-center leading-[56px]'>
+                        Nghe thấy tiếng lòng anh
+                    </div>
                     <div className='h-[56px] flex items-center'>
                         <Sheet>
                             <SheetTrigger asChild>
@@ -199,16 +253,95 @@ export default observer(function ReadBook() {
                                 </ScrollArea>
                             </SheetContent>
                         </Sheet>
-                        <button
-                            className='mx-3 p-0 bg-transparent'
-                            onClick={() => handleAddBookmark(currentPageRef.current)}
-                            title='Add bookmark'
+                        <div>{currentPage}</div>
+                        <div>----</div>
+                        <div>{currentPageRef.current}</div>
+                        {bookmarks.some(b => b.pageIndex === currentPage) ?
+                            (
+                                <button
+                                    className='mx-3 p-0 bg-transparent'
+                                    onClick={() => handleRemoveBookmark(currentPage)}
+                                    title='Remove bookmark'
+                                >
+                                    <BookmarkMinusIcon className='h-[30px] w-[30px] text-[#fff] cursor-pointer' />
+                                </button>
+                            ) :
+                            (
+                                <button
+                                    className='mx-3 p-0 bg-transparent'
+                                    onClick={() => handleAddBookmark(currentPage)}
+                                    title='Add bookmark'
+                                >
+                                    <BookmarkPlusIcon className='h-[30px] w-[30px] text-[#fff] cursor-pointer' />
+                                </button>
+                            )}
+
+                        <div
+                            style={{
+                                border: '1px solid rgba(0, 0, 0, 0.3)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%'
+                            }}
                         >
-                            <BookmarkPlusIcon className='h-[30px] w-[30px] text-[#fff] cursor-pointer' />
-                        </button>
+                            <div
+                                style={{
+                                    alignItems: 'center',
+                                    backgroundColor: '#eeeeee',
+                                    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    padding: '4px'
+                                }}
+                            >
+                                <div style={{ padding: '0px 2px' }}>
+                                    <ZoomOut>
+                                        {(props: RenderZoomOutProps) => (
+                                            <button
+                                                style={{
+                                                    backgroundColor: '#357edd',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    color: '#ffffff',
+                                                    cursor: 'pointer',
+                                                    padding: '8px'
+                                                }}
+                                                onClick={props.onClick}
+                                            >
+                                                Zoom out
+                                            </button>
+                                        )}
+                                    </ZoomOut>
+                                </div>
+                                <div style={{ padding: '0px 2px' }}>
+                                    <CurrentScale>
+                                        {(props: RenderCurrentScaleProps) => <>{`${Math.round(props.scale * 100)}%`}</>}
+                                    </CurrentScale>
+                                </div>
+                                <div style={{ padding: '0px 2px' }}>
+                                    <ZoomIn>
+                                        {(props: RenderZoomInProps) => (
+                                            <button
+                                                style={{
+                                                    backgroundColor: '#357edd',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    color: '#ffffff',
+                                                    cursor: 'pointer',
+                                                    padding: '8px'
+                                                }}
+                                                onClick={props.onClick}
+                                            >
+                                                Zoom in
+                                            </button>
+                                        )}
+                                    </ZoomIn>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className='h-[calc(100vh-120px)]'>
+                <div className='h-[calc(100vh-112px)]'>
                     <div className='flex justify-between'>
                         <div className='flex items-center'>
                             <GoToPreviousPage>
@@ -223,8 +356,8 @@ export default observer(function ReadBook() {
                             <div className='flex-1 overflow-auto m-[-8px]'>
                                 <Worker workerUrl='https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js'>
                                     <Viewer
-                                        fileUrl={require('../../assets/pdf/20193974_NguyenVanAn_20241.pdf')}
-                                        plugins={[highlightPluginInstance, searchPluginInstance, pageNavigationPluginInstance]}
+                                        fileUrl={require('../../assets/pdf/tai-lieu-demo.pdf')}
+                                        plugins={[highlightPluginInstance, searchPluginInstance, pageNavigationPluginInstance, zoomPluginInstance]}
                                         viewMode={ViewMode.SinglePage}
                                         defaultScale={SpecialZoomLevel.PageFit}
                                         scrollMode={ScrollMode.Page}
@@ -244,26 +377,24 @@ export default observer(function ReadBook() {
                             </GoToNextPage>
                         </div>
                     </div>
-                    <div
-                        style={{
-                            flex: 1,
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {/* <CurrentPageLabel>
-                            {(props: RenderCurrentPageLabelProps) => (
-                                <span>{`${props.currentPage + 1} of ${props.numberOfPages}`}</span>
-                            )}
-                        </CurrentPageLabel> */}
-                        <CurrentPageLabel>
-                            {(props: RenderCurrentPageLabelProps) => {
-                                currentPageRef.current = props.currentPage;
-                                return <span className='sr-only'>{`${props.currentPage + 1} of ${props.numberOfPages}`}</span>;
-                            }}
-                        </CurrentPageLabel>
-                    </div>
+
                 </div>
-                <div className='h-[56px] bg-[#29292b]'></div>
+                <div className='h-[56px] bg-[#29292b]'>
+                    <CurrentPageLabel>
+                        {(props: RenderCurrentPageLabelProps) => {
+                            currentPageRef.current = props.currentPage;
+                            return (
+                                <div>
+                                    <div className='flex justify-between text-[#fff]'>
+                                        <div>{`Trang ${props.currentPage + 1}/${props.numberOfPages}`}</div>
+                                        <div>{`${Math.round(((props.currentPage + 1) / props.numberOfPages) * 100)} %`}</div>
+                                    </div>
+                                    <Slider defaultValue={[Number(props.currentPage || 1)]} max={props.numberOfPages} step={1} onValueChange={v => handleSliderChange(v)} />
+                                </div>
+                            );
+                        }}
+                    </CurrentPageLabel>
+                </div>
             </div>
         </>
     );

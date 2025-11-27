@@ -22,6 +22,10 @@
     background: transparent !important;
 }
 
+.rpv-core__inner-page-container--single {
+    overflow: hidden !important;
+}
+
 /* Căn giữa trang nếu chiều cao màn hình lớn hơn trang PDF */
 .rpv-core__canvas-layer {
     display: flex;
